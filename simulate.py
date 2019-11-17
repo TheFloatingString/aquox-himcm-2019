@@ -10,7 +10,7 @@ city.gdp_per_capita=100
 all_results = []
 all_results.append(city.output_variables())
 
-number_of_days=10000
+number_of_days=36500
 
 for i in range(number_of_days):
 	city.simulate_one_day()
@@ -29,9 +29,9 @@ plt.savefig("img/co2_produced.png")
 plt.close()
 
 plt.scatter(range(number_of_days+1),all_results[:,4],s=1)
-plt.title("CO2 Water bottles bought")
+plt.title("Water bottles bought")
 plt.xlabel("Days elapsed")
-plt.ylabel("Plastic ater bottles sold")
+plt.ylabel("Plastic water bottles sold")
 plt.savefig("img/water_bottles_bought.png")
 plt.close()
 
