@@ -36,12 +36,6 @@ class City:
 
 	def compute_gdp_per_capita(self):
 		gdp_per_capita=(self.population-self.sick_people)*(self.gdp_per_capita)/self.population*(1+.03/365)
-		# print(self.sick_people)
-		# print(gdp_per_capita)
-		# print(self.per_day_profit_made)
-		# print(self.per_day_profit_made/self.population)
-		# print(self.var_per_day_profit_made/self.population)
-		# print()
 		gdp_per_capita+=(self.var_per_day_profit_made/self.population)
 		self.gdp_var_per_capita = gdp_per_capita-self.gdp_per_capita
 		self.gdp_per_capita=gdp_per_capita
@@ -52,19 +46,12 @@ class City:
 
 	def compute_sick_people(self):
 		sick_people = (self.population/self.water_bottles_bought_per_day)*self.population/10e4
-		# print(f"population: {self.population}")
-		# print(sick_people)
 		sick_people += self.population*(math.fabs((self.temperature-20)/2)/1000)
-		# print(sick_people)
-		# print()
+		# propagation of pathogens
 		return sick_people
 
 	def compute_population(self):
-		# print(self.population)
-		# print(self.sick_people)
 		self.population+=(self.population/25/365)*2.1
-		# print(self.gdp_per_capita)
-		# print(self.gdp_var_per_capita)
 		self.population=self.population*(1+self.gdp_var_per_capita*0.0001)*(1-(self.sick_people/self.population)*0.01)
 
 	def variation_based_on_temperature(self):
