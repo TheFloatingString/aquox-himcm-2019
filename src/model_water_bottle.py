@@ -5,12 +5,6 @@ import math
 import numpy as np
 import random
 
-def profit(n_water_bottles, profit_per_water_bottle=0.50):
-	return n_water_bottles*profit_per_water_bottle
-
-def pollution_per_water_bottle(n_water_bottles, mass_water_bottle=0.0127, fraction_polluted=0.3):
-	return n_water_bottles*mass_water_bottle*fraction_polluted
-
 def n_individuals_health_problems_from_bpa(n_population, coeff_problem=0.0001):
 	return n_population*coeff_problem
 
@@ -27,38 +21,57 @@ class City:
 		self.COEFF_CO2=0.0828
 		self.population=population
 		self.sick_people=0
-		self.water_bottles_bought_per_day=self.compute_n_water_bottles_bought_per_day()
 		self.gdp_per_capita=100
 		self.gdp_var_per_capita=0
+		self.limit_coeff=1
+		self.water_bottles_bought_per_day=self.compute_n_water_bottles_bought_per_day()
+		self.total_water_bottles_bought=self.compute_n_water_bottles_bought_per_day()
+		self.pollution = 0
+
+	def pollution_per_water_bottle(self, mass_water_bottle=0.0127, fraction_polluted=1):
+		self.pollution += self.water_bottles_bought_per_day*mass_water_bottle*fraction_polluted
+
+	def set_limit_coeff(self, value):
+		self.limit_coeff=value
 
 	def kg_co2_per_water_bottle(self, n_water_bottles):
 		return n_water_bottles*self.COEFF_CO2
 
 	def compute_gdp_per_capita(self):
-		gdp_per_capita=(self.population-self.sick_people)*(self.gdp_per_capita)/self.population*(1+.03/365)
+		gdp_per_capita = (self.gdp_per_capita)*(1.000062301904983)
+		# gdp_per_capita=(self.population-self.sick_people)*(self.gdp_per_capita)/self.population*(1.000062301904983)
 		gdp_per_capita+=(self.var_per_day_profit_made/self.population)
+		if self.population < 0:
+			gdp_per_capita = 0
 		self.gdp_var_per_capita = gdp_per_capita-self.gdp_per_capita
 		self.gdp_per_capita=gdp_per_capita
 
 	def profit(self, n_water_bottles, profit_per_water_bottle=0.5):
-		self.gdp_var_per_capita = n_water_bottles*profit_per_water_bottle - self.per_day_profit_made
+		self.var_per_day_profit_made = n_water_bottles*profit_per_water_bottle - self.per_day_profit_made
 		return n_water_bottles*profit_per_water_bottle
 
 	def compute_sick_people(self):
-		sick_people = (self.population/self.water_bottles_bought_per_day)*self.population/10e4
+		sick_people = 0
+		# if self.water_bottles_bought_per_day > 0:
+			# print(sick_people)
+		sick_people += (self.water_bottles_bought_per_day/self.population)/10e4
 		sick_people += self.population*(math.fabs((self.temperature-20)/2)/1000)
 		# propagation of pathogens
 		return sick_people
 
 	def compute_population(self):
-		self.population+=(self.population/25/365)*2.1
-		self.population=self.population*(1+self.gdp_var_per_capita*0.0001)*(1-(self.sick_people/self.population)*0.01)
+		self.population+=(self.population/35/365)*1.8
+		self.population-=self.population*0.0084/365
+		# print(self.population)
+		self.population=self.population*(1+self.gdp_var_per_capita*0.001)*(1-(self.sick_people/self.population)*0.01)
+		# print(self.sick_people)
+		# print(self.population)
 
 	def variation_based_on_temperature(self):
-		return (1/40)*self.temperature+1
+		return (1/40)*self.temperature+0.5
 
 	def compute_n_water_bottles_bought_per_day(self):
-		return self.population*self.variation_based_on_temperature()*1
+		return self.population*self.variation_based_on_temperature()*self.limit_coeff
 
 	def simulate_one_day(self):
 		self.temperature += self.temperature_variation
@@ -71,9 +84,11 @@ class City:
 		self.compute_temperature_variation()
 		self.compute_gdp_per_capita()
 		self.compute_population()
+		self.total_water_bottles_bought += self.water_bottles_bought_per_day
+		self.pollution_per_water_bottle()
 
 	def compute_temperature_variation(self):
-		self.temperature_variation += self.total_kg_co2_emitted*10e-18
+		self.temperature_variation += self.total_kg_co2_emitted*1.43e-22
 
 	def output_variables(self):
 		return_list = 	[self.per_day_kg_co2_emitted, 
@@ -85,5 +100,7 @@ class City:
 						self.temperature,
 						self.gdp_per_capita,
 						self.sick_people,
-						self.per_day_profit_made]
+						self.total_profit_made,
+						self.total_water_bottles_bought,
+						self.pollution]
 		return np.array(return_list)

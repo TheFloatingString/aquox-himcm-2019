@@ -9,7 +9,7 @@ def convert_gallons_to_liters(gallons):
 	return gallons*3.78541
 
 def total_consumtion(consumption, population, bottle_quantity=0.5, carbon_per_bottle=0.0828):
-	carbon = ((consumption*population)/bottle_quantity)*carbon_per_bottle
+	carbon = ((consumption*population)/bottle_quantity)*carbon_per_bottle/365
 	return carbon
 
 consumption_list = list()
@@ -31,7 +31,7 @@ print(df["year"].values)
 plt.scatter(list(map(int, df["year"].values)), consumption_list)
 plt.xticks(df["year"].values, rotation=80)
 plt.xlabel("Year")
-plt.ylabel("Carbon emitted per year (kg)")
+plt.ylabel("Carbon emitted per day (kg)")
 plt.ylim(0,)
 plt.title("Carbon Emitted in the US due to Water Bottle Usage")
 plt.savefig("img/consumption.png")
